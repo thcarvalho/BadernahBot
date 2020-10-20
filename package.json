@@ -1,0 +1,21 @@
+{
+  "name": "DiscordBOT",
+  "version": "1.0.0",
+  "description": "",
+  "main": "teste.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^12.2.0",
+    "dotenv": "^8.2.0",
+    "ms": "^2.1.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
