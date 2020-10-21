@@ -4,14 +4,10 @@ const ms = require('ms')
 require('dotenv/config')
 
 const bot = new Discord.Client()
-bot.login(`${process.env.DISCORD_TOKEN}`)
+bot.login(process.env.DISCORD_TOKEN)
 
 bot.once('ready', () => {
   console.log("Bot Ready");
-})
-
-bot.on("guildMemberAdd", member => {
-  member.send(`Seja bem vindo(a) ${member.user.tag}`)
 })
 
 bot.on("message", async message => {
@@ -51,25 +47,42 @@ bot.on("message", async message => {
     const user = message.mentions.users.first();
     const member = message.guild.member(user)
 
-    let muterole = message.guild.roles.cache.get('734460711249379368')
-    let verifiedRole = message.guild.roles.cache.get('734474317118570596')
+    // let muterole = message.guild.roles.cache.get('734460711249379368')
+    // let verifiedRole = message.guild.roles.cache.get('734474317118570596')
 
-    if (muterole) {
-      try {
-        member.roles.add(muterole)
-        member.roles.remove(verifiedRole)
-        message.channel.send(`${user.tag} mutado`)
+    let muterole
 
-        setTimeout(() => {
-          member.roles.add(verifiedRole)
-          member.roles.remove(muterole)
-          message.channel.send(`${user.tag} desmutado`)
-        }, ms('1m'))
+    try {
+      muterole = await message.guild.roles.create({
+        data: {
+          name: "Mutado",
+          color: "DARK_RED",
+          permissions: []
+        }
+      })
 
-      } catch (error) {
-        console.log(error);
-      }
+      message.channel.updateOverwrite(muterole, { SEND_MESSAGES: false })
+
+      message.guild.channels.cache.forEach(async channel => {
+        await channel.updateOverwrite(muterole, {
+          SEND_MESSAGES: false,
+          ADD_REACTIONS: false,         
+        })
+      })
+
+      member.roles.add(muterole.id)
+      message.channel.send(`${user.tag} mutado`)
+
+      setTimeout(() => {
+        member.roles.remove(muterole.id)
+        message.channel.send(`${user.tag} desmutado`)
+        message.guild.roles.cache.get(muterole.id).delete()
+      }, ms('1m'))
+
+    } catch (error) {
+      console.log(error);
     }
+
   }
 
   if (command === "unmute") {
