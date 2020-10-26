@@ -10,6 +10,8 @@ bot.once('ready', () => {
   console.log("Bot Ready");
 })
 
+let muteTimeout;
+
 bot.on("message", async message => {
   if (message.author.bot) return
   if (message.channel.type === "dm") return
@@ -66,18 +68,25 @@ bot.on("message", async message => {
       message.guild.channels.cache.forEach(async channel => {
         await channel.updateOverwrite(muterole, {
           SEND_MESSAGES: false,
-          ADD_REACTIONS: false,         
+          ADD_REACTIONS: false,
         })
       })
 
       member.roles.add(muterole.id)
-      message.channel.send(`${user.tag} mutado`)
+      message.channel.send(`${member} mutado`)
+      message.guild.roles.cache.set('@muterole', muterole)
 
-      setTimeout(() => {
-        member.roles.remove(muterole.id)
-        message.channel.send(`${user.tag} desmutado`)
-        message.guild.roles.cache.get(muterole.id).delete()
-      }, ms('1m'))
+      muteTimeout = setTimeout(() => {
+        try {
+          if (muterole) {
+            member.roles.remove(muterole.id)
+            message.channel.send(`${member} desmutado`)
+            message.guild.roles.cache.get(muterole.id).delete()
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }, 10000)
 
     } catch (error) {
       console.log(error);
@@ -89,14 +98,14 @@ bot.on("message", async message => {
     const user = message.mentions.users.first();
     const member = message.guild.member(user)
 
-    let muterole = message.guild.roles.cache.get('734460711249379368')
-    let verifiedRole = message.guild.roles.cache.get('734474317118570596')
+    const muterole = message.guild.roles.cache.get('@muterole');
 
     if (muterole) {
       try {
-        member.roles.add(verifiedRole)
-        member.roles.remove(muterole)
-        message.channel.send(`${user.tag} desmutado`)
+        clearTimeout(muteTimeout)
+        member.roles.remove(muterole.id)
+        message.channel.send(`${member} desmutado`)
+        message.guild.roles.cache.get(muterole.id).delete()
       } catch (error) {
         console.log(error);
       }
