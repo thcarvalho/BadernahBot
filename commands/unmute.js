@@ -1,5 +1,3 @@
-
-
 module.exports = {
   async unmute(message, emitter) {
     const user = message.mentions.users.first();
@@ -9,7 +7,7 @@ module.exports = {
 
     if (muterole) {
       try {
-        emitter.emit('clearTimeout', member.id)
+        emitter.emit('clearTimeout', (member.id+message.guild.id))
         member.roles.remove(muterole.id)
         message.guild.roles.cache.get(muterole.id).delete()
         message.channel.send(`${member} desmutado`)

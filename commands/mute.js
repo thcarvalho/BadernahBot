@@ -27,7 +27,7 @@ module.exports = {
       })
 
       member.roles.add(muterole.id)
-      
+
       message.channel.send(`${member} mutado`)
       message.guild.roles.cache.set('@muterole', muterole)
 
@@ -37,20 +37,27 @@ module.exports = {
             member.roles.remove(muterole.id)
             message.guild.roles.cache.get(muterole.id).delete()
             message.channel.send(`${member} desmutado`)
+            timeoutArray.splice((member.id + message.guild.id), 1)
           }
         } catch (error) {
           console.log(error);
         }
-      }, ms('1d'))
+      }, 20000)
 
-      timeoutArray[member.id] = muteTimeout
+      timeoutArray[(member.id + message.guild.id)] = muteTimeout
+
 
       emitter.on('clearTimeout', (id) => {
         const timeout = timeoutArray[id]
         clearTimeout(timeout)
+        timeoutArray.map(arr => {
+          if (arr[id] === timeout) {
+            arr.splice(id, 1)
+          }
+        })
       })
 
-
+      console.log(timeoutArray);
 
     } catch (error) {
       console.log(error);
