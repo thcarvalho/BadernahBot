@@ -42,7 +42,7 @@ module.exports = {
         } catch (error) {
           console.log(error);
         }
-      }, 20000)
+      }, ms('1d'))
 
       timeoutArray[(member.id + message.guild.id)] = muteTimeout
 
