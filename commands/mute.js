@@ -6,43 +6,38 @@ module.exports = {
     const user = message.mentions.users.first();
     const member = message.guild.member(user)
 
-    let muterole
-
     try {
-      muterole = await message.guild.roles.create({
-        data: {
-          name: "Mutado",
-          color: "DARK_RED",
-          permissions: []
-        }
-      })
 
-      message.channel.updateOverwrite(muterole, { SEND_MESSAGES: false })
+      const muterole = message.guild.roles.cache.get('@muterole');
+      const mainrole = message.guild.roles.cache.get('@mainrole');
 
-      message.guild.channels.cache.forEach(async channel => {
-        await channel.updateOverwrite(muterole, {
-          SEND_MESSAGES: false,
-          ADD_REACTIONS: false,
-        })
-      })
+      if (!mainrole) {
+        return message.channel.send('Você precisa setar um cargo padrão primeiro!')
+      }
 
+      if (member.roles.cache.get(muterole.id)) {
+        return message.channel.send('Membro já está mutado!')
+      }
+
+      member.roles.remove(mainrole.id)
       member.roles.add(muterole.id)
-
       message.channel.send(`${member} mutado`)
-      message.guild.roles.cache.set('@muterole', muterole)
 
       const muteTimeout = setTimeout(() => {
         try {
           if (muterole) {
+
             member.roles.remove(muterole.id)
-            message.guild.roles.cache.get(muterole.id).delete()
+            member.roles.add(mainrole.id)
+
+            // message.guild.roles.cache.get(muterole.id).delete()
             message.channel.send(`${member} desmutado`)
             timeoutArray.splice((member.id + message.guild.id), 1)
           }
         } catch (error) {
           console.log(error);
         }
-      }, ms('1d'))
+      }, 20000)
 
       timeoutArray[(member.id + message.guild.id)] = muteTimeout
 
@@ -57,7 +52,7 @@ module.exports = {
         })
       })
 
-      console.log(timeoutArray);
+      // console.log(timeoutArray);
 
     } catch (error) {
       console.log(error);

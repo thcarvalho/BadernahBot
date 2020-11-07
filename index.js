@@ -2,6 +2,7 @@ const Discord = require('discord.js')
 const config = require('./config.json')
 const kick = require('./commands/kick')
 const ban = require('./commands/ban')
+const { cargo } = require('./commands/cargo')
 const { mute } = require('./commands/mute')
 const { unmute } = require('./commands/unmute')
 const { EventEmitter } = require('events')
@@ -24,6 +25,10 @@ bot.on("message", async message => {
 
   const args = message.content.slice(config.prefix.length).trim().split(/ +/g)
   const command = args.shift().toLowerCase()
+
+  if (command === 'cargo') {
+    await cargo(message)
+  }
 
   if (command === "kick") {
     await kick(message)
